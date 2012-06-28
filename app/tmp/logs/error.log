@@ -1,0 +1,5 @@
+2012-06-28 18:25:10 Error: [MissingActionException] Action PagesController::display() could not be found.
+#0 /var/www/rzcms/lib/Cake/Routing/Dispatcher.php(103): Controller->invokeAction(Object(CakeRequest))
+#1 /var/www/rzcms/lib/Cake/Routing/Dispatcher.php(85): Dispatcher->_invoke(Object(PagesController), Object(CakeRequest), Object(CakeResponse))
+#2 /var/www/rzcms/app/webroot/index.php(92): Dispatcher->dispatch(Object(CakeRequest), Object(CakeResponse))
+#3 {main}
