@@ -21,6 +21,7 @@
  */
 
 App::uses('Controller', 'Controller');
+App::uses('FireCake', 'DebugKit.Lib');
 
 /**
  * Application Controller
@@ -32,4 +33,17 @@ App::uses('Controller', 'Controller');
  * @link http://book.cakephp.org/2.0/en/controllers.html#the-app-controller
  */
 class AppController extends Controller {
+	
+	public $components = array(
+		'Session',
+		'Auth' => array(
+			'loginRedirect' => array('controller' => 'pages', 'action' => 'index', 1),
+			'logoutRedirect' => array('controller' => 'users', 'action' => 'login')
+		),
+		'DebugKit.Toolbar'
+	);
+	
+	public function beforeFilter() {
+		//$this->Auth->allow('login');
+	}
 }
