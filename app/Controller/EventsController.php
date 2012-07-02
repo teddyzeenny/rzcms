@@ -25,8 +25,16 @@ class EventsController extends AppController {
 			if (empty($this->request->data)) {
 				$this->request->data = $this->Event->findById($eventId);
 			} else {
+				$this->uploadImg($this->request->data['Event']['image']);
+				unset($this->request->data['Event']['image']);
 				$this->Event->save($this->request->data);
 			}
+			$images = $this->Event->Image->find('all', array(
+				'conditions' => array(
+					'Image.event_id' => $eventId
+				)
+			));
+			$this->set('images', $images);
 		}
 	}
 	
@@ -34,6 +42,18 @@ class EventsController extends AppController {
 		if ($this->request->is('get')) {
 			$this->Event->delete($id);
 			$this->redirect($this->referer());
+		}
+	}
+	
+	public function uploadImg($params) {
+		$file = APP . 'webroot' . DS . 'img' . DS . 'events' . DS;
+		if (($params['type'] == 'image/jpeg') && ($params['error'] == 0) && ($params['size'] > 0)) {
+			$this->Event->Image->create();
+			$this->Event->Image->save(array(
+				'event_id' => $this->request->data['Event']['id']
+			));
+			$file .= $this->Event->Image->getLastInsertID() . '.jpg';
+			return move_uploaded_file($params['tmp_name'], $file);
 		}
 	}
 }
