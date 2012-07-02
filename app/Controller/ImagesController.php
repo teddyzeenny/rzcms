@@ -1,10 +1,8 @@
 <?php
 class ImagesController extends AppController {
 	public function delete ($id = null) {
-		if ($this->request->is('get')) {
-			$this->Image->delete($id);
-			$file = APP . 'webroot' . DS . 'img' . DS . 'events' . DS . $id . '.jpg';
-			unset($file);
+		if (isset($id)) {
+			$this->Image->remove($id);
 			$this->redirect($this->request->referer());
 		}
 	}

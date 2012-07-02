@@ -12,8 +12,10 @@ class EventsController extends AppController {
 			if (!empty($this->request->data)) {
 				$this->request->data['Event']['category_id'] = $catId;
 				$this->Event->create();
-				$this->Event->save($this->request->data);
-				unset($this->request->data);
+				$success = $this->Event->save($this->request->data);
+				if ($success) {
+					unset($this->request->data);
+				}
 			}
 			$conditions = array(
 				'Event.category_id' => $catId,
@@ -40,7 +42,15 @@ class EventsController extends AppController {
 	
 	public function delete($id) {
 		if ($this->request->is('get')) {
+			$eventImgs = $this->Event->Image->find('all', array(
+				'conditions' => array(
+					'Image.event_id' => $id
+				)
+			));
 			$this->Event->delete($id);
+			foreach ($eventImgs as $img) {
+				$this->Event->Image->remove($img['Image']['id']);
+			}
 			$this->redirect($this->referer());
 		}
 	}
