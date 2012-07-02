@@ -46,7 +46,7 @@ $cakeDescription = __d('cake_dev', 'CakePHP: the rapid development php framework
 				echo $this->Html->link('Home', array('controller' => 'pages', 'action' => 'display', '1')) . ' ';
 				echo $this->Html->link('About', array('controller' => 'pages', 'action' => 'display', '2')) . ' '; 
 				echo $this->Html->link('Services', array('controller' => 'services', 'action' => 'index')) . ' '; 
-				echo $this->Html->link('Events', array('controller' => 'events', 'action' => 'display')); 
+				echo $this->Html->link('Events', array('controller' => 'events', 'action' => 'index')); 
 			?>
 			
 			<?php echo $this->Session->flash(); ?>

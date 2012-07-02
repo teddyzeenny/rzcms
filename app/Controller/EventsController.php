@@ -1,43 +1,49 @@
 <?php
 class EventsController extends AppController {
-	public function display($catId = null, $eventId = null) {
-		if (!isset($catId)) {
-			$categories = $this->Event->Category->find('all', array(
-				'order' => array(
-					'Category.created' => 'ASC'
-				)
-			));
-			$this->set('categories', $categories);
-		} elseif (!isset($eventId)) {
-			if (!empty($this->request->data)) {
-				$this->request->data['Event']['category_id'] = $catId;
-				$this->Event->create();
-				$success = $this->Event->save($this->request->data);
-				if ($success) {
-					unset($this->request->data);
-				}
-			}
-			$conditions = array(
-				'Event.category_id' => $catId,
+	public $components = array('Security');
+	
+	public function index() {
+		$categories = $this->Event->Category->find('all', array(
+			'order' => array(
 				'Category.created' => 'ASC'
-			);
-			$eventsList = $this->Event->find('all', array('conditions' => $conditions));
-			$this->set('eventsList', $eventsList);
-		} else {
-			if (empty($this->request->data)) {
-				$this->request->data = $this->Event->findById($eventId);
-			} else {
-				$this->uploadImg($this->request->data['Event']['image']);
-				unset($this->request->data['Event']['image']);
-				$this->Event->save($this->request->data);
+			)
+		));
+		$this->set('categories', $categories);
+	}
+	
+	public function display($catId = null) {
+		if (!empty($this->request->data)) {
+			$this->request->data['Event']['category_id'] = $catId;
+			$this->Event->create();
+			$success = $this->Event->save($this->request->data);
+			if ($success) {
+				unset($this->request->data);
 			}
-			$images = $this->Event->Image->find('all', array(
-				'conditions' => array(
-					'Image.event_id' => $eventId
-				)
-			));
-			$this->set('images', $images);
 		}
+		$conditions = array();
+		if ($catId == 1) {
+			$conditions['Event.date <'] =  date('Y-m-d h:i:s');
+		} else {
+			$conditions['Event.date >='] =  date('Y-m-d h:i:s');
+		}
+		$eventsList = $this->Event->find('all', array('conditions' => $conditions));
+		$this->set('eventsList', $eventsList);
+	}
+	
+	public function edit($id) {
+		if (empty($this->request->data)) {
+			$this->request->data = $this->Event->findById($id);
+		} else {
+			$this->uploadImg($this->request->data['Event']['image']);
+			unset($this->request->data['Event']['image']);
+			$this->Event->save($this->request->data);
+		}
+		$images = $this->Event->Image->find('all', array(
+			'conditions' => array(
+				'Image.event_id' => $id
+			)
+		));
+		$this->set('images', $images);
 	}
 	
 	public function delete($id) {
