@@ -2,7 +2,7 @@
 class UsersController extends AppController {
 	
 	public function create() {
-		if (isset($this->request->data)) {
+		if (!empty($this->request->data)) {
 			$this->User->create();
 			$this->User->save($this->request->data);
 		}

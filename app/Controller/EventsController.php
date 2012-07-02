@@ -3,12 +3,20 @@ class EventsController extends AppController {
 	public $components = array('Security');
 	
 	public function index() {
-		$categories = $this->Event->Category->find('all', array(
-			'order' => array(
-				'Category.created' => 'ASC'
+		$this->set('categories', array(
+			array(
+				'Category' => array(
+					'id' => 1,
+					'name' => 'Past events'
+				)
+			),
+			array(
+				'Category' => array(
+					'id' => 2,
+					'name' => 'Current events'
+				)
 			)
 		));
-		$this->set('categories', $categories);
 	}
 	
 	public function display($catId = null) {
@@ -17,7 +25,7 @@ class EventsController extends AppController {
 			$this->Event->create();
 			$success = $this->Event->save($this->request->data);
 			if ($success) {
-				unset($this->request->data);
+				$this->request->data = array();
 			}
 		}
 		$conditions = array();
@@ -26,7 +34,12 @@ class EventsController extends AppController {
 		} else {
 			$conditions['Event.date >='] =  date('Y-m-d h:i:s');
 		}
-		$eventsList = $this->Event->find('all', array('conditions' => $conditions));
+		$eventsList = $this->Event->find('all', array(
+			'conditions' => $conditions,
+			'order' => array(
+				'Event.date' => 'desc'
+			)
+		));
 		$this->set('eventsList', $eventsList);
 	}
 	
@@ -34,7 +47,7 @@ class EventsController extends AppController {
 		if (empty($this->request->data)) {
 			$this->request->data = $this->Event->findById($id);
 		} else {
-			$this->uploadImg($this->request->data['Event']['image']);
+			$this->_uploadImg($this->request->data['Event']['image']);
 			unset($this->request->data['Event']['image']);
 			$this->Event->save($this->request->data);
 		}
@@ -46,29 +59,27 @@ class EventsController extends AppController {
 		$this->set('images', $images);
 	}
 	
-	public function delete($id) {
-		if ($this->request->is('get')) {
+	public function delete($id = null) {
+		if ($id) {
 			$eventImgs = $this->Event->Image->find('all', array(
 				'conditions' => array(
 					'Image.event_id' => $id
 				)
 			));
 			$this->Event->delete($id);
-			foreach ($eventImgs as $img) {
-				$this->Event->Image->remove($img['Image']['id']);
-			}
-			$this->redirect($this->referer());
 		}
+		$this->redirect($this->referer());
+
 	}
 	
-	public function uploadImg($params) {
+	protected function _uploadImg($params) {
 		$file = APP . 'webroot' . DS . 'img' . DS . 'events' . DS;
 		if (($params['type'] == 'image/jpeg') && ($params['error'] == 0) && ($params['size'] > 0)) {
 			$this->Event->Image->create();
 			$this->Event->Image->save(array(
 				'event_id' => $this->request->data['Event']['id']
 			));
-			$file .= $this->Event->Image->getLastInsertID() . '.jpg';
+			$file .= $this->Event->Image->id . '.jpg';
 			return move_uploaded_file($params['tmp_name'], $file);
 		}
 	}
